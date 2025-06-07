@@ -24,3 +24,6 @@ if __name__ == "__main__":
     download_and_unzip_from_gdrive(GDRIVE_ID, RAW_DATA_DIR)
     logger.info("Step 1: All raw data files acquired successfully.")
 
+    ############################################################
+    ##### STEP 2: Clean Data & Save Statistics             #####
+    ############################################################
