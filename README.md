@@ -59,9 +59,11 @@ You should also leave a detailed comment in the PR with the following informatio
 
 ```
 *[Description]*
+
 - Detailed breakdown of the task
 
 *[Test Results]*
+
 - Include the tests you performed
 ```
 
