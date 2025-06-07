@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+.env
+.venv
+.conda_venv
+venv/
+env/
+data/*
