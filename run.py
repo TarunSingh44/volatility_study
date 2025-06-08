@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     # Rolling Mean & SD
     logger.info("Step 4.3: Calculating Rolling Mean & SD")
-    calc_rolling_mean_sd(CLEANED_DATA)
+    calc_rolling_mean_sd(CLEANED_DATA, plot=False)
     logger.info("Step 4.3: Rolling Mean & SD Completed.")
 
     # Abs Return & Sq Return

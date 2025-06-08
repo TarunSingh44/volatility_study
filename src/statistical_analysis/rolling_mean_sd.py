@@ -16,7 +16,8 @@ from src.config.constants import (
     ROLLING_MEAN_RETURN_DIR, 
     ROLLING_STD_RETURN_DIR, 
     ROLLING_MEAN_RETURN_PLOTS_DIR, 
-    ROLLING_STD_RETURN_PLOTS_DIR
+    ROLLING_STD_RETURN_PLOTS_DIR,
+    FREQUENCIES,
 )
 
 if os.path.exists(LOGGING_FILE):
@@ -27,12 +28,24 @@ else:
     logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def ensure_dirs(plot: bool = True):
+    """
+    Ensures all output directories exist. If plot is False, skips plot directories.
 
-for d in [
-    ROLLING_MEAN_DIR, ROLLING_STD_DIR, ROLLING_MEAN_PLOTS_DIR, ROLLING_STD_PLOTS_DIR,
-    ROLLING_MEAN_RETURN_DIR, ROLLING_STD_RETURN_DIR, ROLLING_MEAN_RETURN_PLOTS_DIR, ROLLING_STD_RETURN_PLOTS_DIR
-]:
-    os.makedirs(d, exist_ok=True)
+    Args:
+        plot (bool): Whether to create plot directories.
+    """
+    dirs = [
+        ROLLING_MEAN_DIR, ROLLING_STD_DIR,
+        ROLLING_MEAN_RETURN_DIR, ROLLING_STD_RETURN_DIR
+    ]
+    if plot:
+        dirs += [
+            ROLLING_MEAN_PLOTS_DIR, ROLLING_STD_PLOTS_DIR,
+            ROLLING_MEAN_RETURN_PLOTS_DIR, ROLLING_STD_RETURN_PLOTS_DIR
+        ]
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
 
 def load_timeseries_data(file_path):
     """
@@ -78,17 +91,18 @@ def calculate_returns(df):
         logger.error(f"Error calculating returns: {e}", exc_info=True)
         return pd.DataFrame()
 
-def save_rolling_stats_and_plot(rolling_df, out_csv, out_plot_dir, base_file_name, freq_name, stat_type):
+def save_rolling_stats_and_plot(rolling_df, out_csv, out_plot_dir, base_file_name, freq_name, stat_type, plot=True):
     """
-    Saves rolling statistics as CSV and generates/saves individual plots for each column.
+    Saves rolling statistics as CSV and optionally generates/saves individual plots for each column.
 
     Args:
         rolling_df (pd.DataFrame): DataFrame with rolling stat values.
         out_csv (str): Path to save the rolling stat CSV.
         out_plot_dir (str): Directory to save the plots.
         base_file_name (str): Base name for output files.
-        freq_name (str): Frequency label (e.g. 'base', '1day').
-        stat_type (str): Statistic type for labeling (e.g. 'mean', 'std', 'mean_return').
+        freq_name (str): Frequency label.
+        stat_type (str): Statistic type for labeling.
+        plot (bool): Whether to generate plots.
 
     Returns:
         None
@@ -96,43 +110,37 @@ def save_rolling_stats_and_plot(rolling_df, out_csv, out_plot_dir, base_file_nam
     try:
         rolling_df.to_csv(out_csv, index=True)
         logger.info(f"Saved rolling {stat_type} ({freq_name}) to {out_csv}")
-        for column in rolling_df.columns:
-            plt.figure(figsize=(12, 7))
-            plt.plot(rolling_df.index, rolling_df[column], label=f'Rolling {stat_type.replace("_", " ").title()}')
-            plt.title(f'{column} - Rolling {stat_type.replace("_", " ").title()} ({freq_name})')
-            plt.xlabel('Date/Time')
-            plt.xticks(rotation=45)
-            plt.ylabel(f'Rolling {stat_type.replace("_", " ").title()}')
-            plt.legend()
-            plot_path = os.path.join(out_plot_dir, f'{base_file_name}_{column}_rolling_{stat_type}_{freq_name}.png')
-            plt.tight_layout()
-            plt.savefig(plot_path)
-            plt.close()
-            logger.info(f"Saved plot for rolling {stat_type} of {column} at {freq_name} to {plot_path}")
+        if plot:
+            for column in rolling_df.columns:
+                plt.figure(figsize=(12, 7))
+                plt.plot(rolling_df.index, rolling_df[column], label=f'Rolling {stat_type.replace("_", " ").title()}')
+                plt.title(f'{column} - Rolling {stat_type.replace("_", " ").title()} ({freq_name})')
+                plt.xlabel('Date/Time')
+                plt.xticks(rotation=45)
+                plt.ylabel(f'Rolling {stat_type.replace("_", " ").title()}')
+                plt.legend()
+                plot_path = os.path.join(out_plot_dir, f'{base_file_name}_{column}_rolling_{stat_type}_{freq_name}.png')
+                plt.tight_layout()
+                plt.savefig(plot_path)
+                plt.close()
+                logger.info(f"Saved plot for rolling {stat_type} of {column} at {freq_name} to {plot_path}")
     except Exception as e:
         logger.error(f"Failed saving rolling {stat_type} or plots for {base_file_name} ({freq_name}): {e}", exc_info=True)
 
-def calc_rolling_mean_sd(source_dir, window_size=5):
+def calc_rolling_mean_sd(source_dir, window_size=5, plot=True):
     """
-    Main routine to compute and save rolling mean/std and their plots for both actual values and returns.
+    Main routine to compute and save rolling mean/std and (optionally) their plots for both actual values and returns.
 
     Args:
         source_dir (str): Directory with cleaned data files.
         window_size (int): Rolling window size.
+        plot (bool): Whether to generate and save rolling plots.
 
     Returns:
         None
     """
-    frequencies = {
-        'base': None,
-        '30mins': '30T',
-        '1hr': '1H',
-        '12hrs': '12H',
-        '1day': '1D',
-        '1week': '1W',
-        '1month': '1M',
-        '1year': '1Y'
-    }
+    ensure_dirs(plot=plot)
+
     start_time = time.time()
     for file_name in os.listdir(source_dir):
         file_path = os.path.join(source_dir, file_name)
@@ -146,7 +154,7 @@ def calc_rolling_mean_sd(source_dir, window_size=5):
                 continue
             base_file_name = os.path.splitext(file_name)[0]
 
-            for freq_name, freq in frequencies.items():
+            for freq_name, freq in FREQUENCIES.items():
                 # Resample if frequency is set
                 df_resampled = df.resample(freq).mean() if freq and isinstance(df.index, pd.DatetimeIndex) else df
                 # Rolling mean/std (actual)
@@ -158,7 +166,8 @@ def calc_rolling_mean_sd(source_dir, window_size=5):
                     ROLLING_MEAN_PLOTS_DIR,
                     base_file_name,
                     freq_name,
-                    stat_type="mean"
+                    stat_type="mean",
+                    plot=plot
                 )
                 save_rolling_stats_and_plot(
                     rolling_std,
@@ -166,7 +175,8 @@ def calc_rolling_mean_sd(source_dir, window_size=5):
                     ROLLING_STD_PLOTS_DIR,
                     base_file_name,
                     freq_name,
-                    stat_type="std"
+                    stat_type="std",
+                    plot=plot
                 )
 
                 # Rolling mean/std (returns)
@@ -179,7 +189,8 @@ def calc_rolling_mean_sd(source_dir, window_size=5):
                     ROLLING_MEAN_RETURN_PLOTS_DIR,
                     base_file_name,
                     freq_name,
-                    stat_type="mean_return"
+                    stat_type="mean_return",
+                    plot=plot
                 )
                 save_rolling_stats_and_plot(
                     rolling_std_return,
@@ -187,12 +198,11 @@ def calc_rolling_mean_sd(source_dir, window_size=5):
                     ROLLING_STD_RETURN_PLOTS_DIR,
                     base_file_name,
                     freq_name,
-                    stat_type="std_return"
+                    stat_type="std_return",
+                    plot=plot
                 )
         except Exception as e:
             logger.error(f"Failed processing {file_name}: {e}", exc_info=True)
     total_time = time.time() - start_time
     logger.info(f"Time taken to run the rolling stats code: {total_time:.2f} seconds")
-
-
 

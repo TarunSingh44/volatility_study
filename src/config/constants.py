@@ -28,6 +28,17 @@ GDRIVE_ID = "17qFL4wZ_GbjuPgBQ2psA5RXSKnETIRX3"
 ###################################
 STATS_DIR = os.path.join(DATA_DIR, "volatility_stats")
 
+FREQUENCIES = {
+    'base': None,
+    '30mins': '30T',
+    '1hr': '1H',
+    '12hrs': '12H',
+    '1day': '1D',
+    '1week': '1W',
+    '1month': '1M',
+    '1year': '1Y'
+}
+
 # Statistical Moments
 STATISTICAL_MOMENTS = os.path.join(STATS_DIR, "statistical_moments")
 STATISTICAL_MOMENTS_ACTUAL = os.path.join(STATISTICAL_MOMENTS, "actual")
@@ -52,3 +63,4 @@ ROLLING_MEAN_RETURN_DIR = os.path.join(ROLLING_RETURN, "data", "rolling_mean_ret
 ROLLING_STD_RETURN_DIR = os.path.join(ROLLING_RETURN, "data", "rolling_std_return")
 ROLLING_MEAN_RETURN_PLOTS_DIR = os.path.join(ROLLING_RETURN, "plots", "rolling_mean_return")
 ROLLING_STD_RETURN_PLOTS_DIR = os.path.join(ROLLING_RETURN, "plots", "rolling_std_return")
+
