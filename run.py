@@ -15,6 +15,7 @@ from src.data_preprocessing.raw_data_stats import generate_raw_data_stats
 from src.data_preprocessing.clean_raw_data import raw_data_cleaning
 from src.statistical_analysis.statistical_moments import calc_stats_moments
 from src.statistical_analysis.correlation import calc_correlation
+from src.statistical_analysis.rolling_mean_sd import calc_rolling_mean_sd
 
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
@@ -64,7 +65,7 @@ if __name__ == "__main__":
 
     # Rolling Mean & SD
     logger.info("Step 4.3: Calculating Rolling Mean & SD")
-    
+    calc_rolling_mean_sd(CLEANED_DATA)
     logger.info("Step 4.3: Rolling Mean & SD Completed.")
 
     # Abs Return & Sq Return

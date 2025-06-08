@@ -38,3 +38,17 @@ CORRELATION =  os.path.join(STATS_DIR, "correlation")
 CORRELATION_ACTUAL = os.path.join(CORRELATION, "actual")
 CORRELATION_RETURN = os.path.join(CORRELATION, "return")
 
+# Rolling stats (data and plots for both actual and returns)
+ROLLING_STATS = os.path.join(STATS_DIR, "rolling_stats")
+ROLLING_ACTUAL = os.path.join(ROLLING_STATS, "actual")
+ROLLING_RETURN = os.path.join(ROLLING_STATS, "return")
+
+ROLLING_MEAN_DIR = os.path.join(ROLLING_ACTUAL, "data", "rolling_mean")
+ROLLING_STD_DIR = os.path.join(ROLLING_ACTUAL, "data", "rolling_std")
+ROLLING_MEAN_PLOTS_DIR = os.path.join(ROLLING_ACTUAL, "plots", "rolling_mean")
+ROLLING_STD_PLOTS_DIR = os.path.join(ROLLING_ACTUAL, "plots", "rolling_std")
+
+ROLLING_MEAN_RETURN_DIR = os.path.join(ROLLING_RETURN, "data", "rolling_mean_return")
+ROLLING_STD_RETURN_DIR = os.path.join(ROLLING_RETURN, "data", "rolling_std_return")
+ROLLING_MEAN_RETURN_PLOTS_DIR = os.path.join(ROLLING_RETURN, "plots", "rolling_mean_return")
+ROLLING_STD_RETURN_PLOTS_DIR = os.path.join(ROLLING_RETURN, "plots", "rolling_std_return")
