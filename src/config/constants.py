@@ -90,3 +90,6 @@ CATEGORIES = [
 
 # Q stats
 Q_STAT_DIR = os.path.join(STATS_DIR, "q_statistic", "data")
+
+# Variance-Ratio-Test
+VR_STAT_DIR = os.path.join(STATS_DIR, "variance_ratio_test", "data")

@@ -19,6 +19,8 @@ from src.statistical_analysis.rolling_mean_sd import calc_rolling_mean_sd
 from src.statistical_analysis.abs_return_sq_return import calc_abs_squared_return_stats
 from src.statistical_analysis.log_return import calc_log_return_stats
 from src.statistical_analysis.auto_corr import calc_cross_auto_corr_stats
+from src.statistical_analysis.q_stats import calc_q_statistic_stats
+from src.statistical_analysis.z_return import calc_vr_statistic_stats
 
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
@@ -88,10 +90,10 @@ if __name__ == "__main__":
 
     # Q-Stats
     logger.info("Step 4.7: Calculating Q-Stats")
-    
+    calc_q_statistic_stats(CLEANED_DATA, max_tau=30)
     logger.info("Step 4.7: Q-Stats Completed.")
 
     # Z Return
-    logger.info("Step 4.8: Calculating Z Return")
-    
-    logger.info("Step 4.8: Z Return Completed.")
+    logger.info("Step 4.8: Calculating VR test")
+    calc_vr_statistic_stats(CLEANED_DATA)
+    logger.info("Step 4.8: VR test Completed.")
