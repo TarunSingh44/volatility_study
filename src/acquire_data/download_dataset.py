@@ -23,10 +23,16 @@ logger = logging.getLogger(__name__)
 # Data Download & Unzip Function
 def download_and_unzip_from_gdrive(gdrive_id, dest_dir):
     """
-    Downloads a file from Google Drive and unzips it to the destination directory.
+    Downloads a zip file from Google Drive using its file ID, unzips it to the specified destination directory, 
+    and removes the downloaded zip file.
+
     Args:
-        gdrive_id (str): Google Drive file ID.
-        dest_dir (str): Destination directory for unzipped files.
+        gdrive_id (str): The unique file ID of the file on Google Drive.
+        dest_dir (str): The local directory path where the contents will be extracted.
+
+    Raises:
+        Exception: If any error occurs during download or extraction, the exception is logged and re-raised.
+        
     """
     try:
         os.makedirs(dest_dir, exist_ok=True)

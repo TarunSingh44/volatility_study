@@ -6,8 +6,10 @@ from src.config.constants import(
     GDRIVE_ID,
 )
 from src.acquire_data.download_dataset import download_and_unzip_from_gdrive
+from src.data_preprocessing.raw_data_stats import generate_raw_data_stats
+from src.data_preprocessing.clean_raw_data import raw_data_cleaning
 
-# Set up logging from YAML config
+
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
     logging.config.dictConfig(config)
@@ -25,5 +27,17 @@ if __name__ == "__main__":
     logger.info("Step 1: All raw data files acquired successfully.")
 
     ############################################################
-    ##### STEP 2: Clean Data & Save Statistics             #####
+    ##### STEP 2: Get Raw Data Stats                       #####
     ############################################################
+
+    logger.info("Step 2: Generating Raw Data Stats")
+    generate_raw_data_stats()
+    logger.info("Step 2: Raw Data Stats Generated.")
+
+    ############################################################
+    ##### STEP 3: Clean Data & Save Statistics             #####
+    ############################################################
+
+    logger.info("Step 3: Starting Cleaning Process")
+    raw_data_cleaning()
+    logger.info("Step 3: Data Cleaning Completed.")
