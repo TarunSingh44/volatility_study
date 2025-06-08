@@ -4,11 +4,14 @@ from src.config.constants import(
     LOGGING_FILE,
     RAW_DATA,
     GDRIVE_ID,
+    CLEANED_DATA,
+    STATISTICAL_MOMENTS_ACTUAL,
+    STATISTICAL_MOMENTS_RETURN,
 )
 from src.acquire_data.download_dataset import download_and_unzip_from_gdrive
 from src.data_preprocessing.raw_data_stats import generate_raw_data_stats
 from src.data_preprocessing.clean_raw_data import raw_data_cleaning
-
+from src.statistical_analysis.statistical_moments import calc_stats_moments
 
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
@@ -48,7 +51,7 @@ if __name__ == "__main__":
 
     # Statistical Moments
     logger.info("Step 4.1: Calculating Statistical Moments")
-    
+    calc_stats_moments(CLEANED_DATA, STATISTICAL_MOMENTS_ACTUAL, STATISTICAL_MOMENTS_RETURN)
     logger.info("Step 4.1: Statistical Moments Completed.")
 
     # Correlation
@@ -77,11 +80,11 @@ if __name__ == "__main__":
     logger.info("Step 4.6: Sample Autocorrelation Completed.")
 
     # Q-Stats
-    logger.info("Step 4.6: Calculating Q-Stats")
+    logger.info("Step 4.7: Calculating Q-Stats")
     
-    logger.info("Step 4.6: Q-Stats Completed.")
+    logger.info("Step 4.7: Q-Stats Completed.")
 
     # Z Return
-    logger.info("Step 4.6: Calculating Z Return")
+    logger.info("Step 4.8: Calculating Z Return")
     
-    logger.info("Step 4.6: Z Return Completed.")
+    logger.info("Step 4.8: Z Return Completed.")

@@ -9,7 +9,7 @@ from pathlib import Path
 from src.config.constants import (
     LOGGING_FILE,
     RAW_DATA,
-    STATS_OUTPUT_DIR,
+    RAW_STATS_OUTPUT_DIR,
 )
 
 if os.path.exists(LOGGING_FILE):
@@ -22,7 +22,7 @@ else:
 logger = logging.getLogger(__name__)
 
 
-os.makedirs(STATS_OUTPUT_DIR, exist_ok=True)
+os.makedirs(RAW_STATS_OUTPUT_DIR, exist_ok=True)
 
 def load_timeseries_data(file_path):
     """
@@ -124,7 +124,7 @@ def generate_raw_data_stats():
     for file_name in os.listdir(RAW_DATA):
         if file_name.endswith('.csv'):
             file_path = os.path.join(RAW_DATA, file_name)
-            summarize_raw_file(file_path, STATS_OUTPUT_DIR)
+            summarize_raw_file(file_path, RAW_STATS_OUTPUT_DIR)
     total_time_taken = time.time() - start_time
     logger.info(f"Total time taken to process all files: {total_time_taken:.2f} seconds")
 
