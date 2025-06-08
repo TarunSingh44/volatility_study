@@ -2,7 +2,7 @@ import yaml
 import logging
 from src.config.constants import(
     LOGGING_FILE,
-    RAW_DATA_DIR,
+    RAW_DATA,
     GDRIVE_ID,
 )
 from src.acquire_data.download_dataset import download_and_unzip_from_gdrive
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     ############################################################
 
     logger.info("Step 1: Starting to download data from Google Drive")
-    download_and_unzip_from_gdrive(GDRIVE_ID, RAW_DATA_DIR)
+    download_and_unzip_from_gdrive(GDRIVE_ID, RAW_DATA)
     logger.info("Step 1: All raw data files acquired successfully.")
 
     ############################################################

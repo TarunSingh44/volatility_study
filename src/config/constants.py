@@ -13,6 +13,7 @@ LOGGING_FILE = str(Path(BASE_PATH) / "src" / "config" / "logging.yml")
 # Data Directory
 DATA_DIR = os.path.join(BASE_PATH, "data")
 RAW_DATA_DIR = os.path.join(DATA_DIR, "raw")
+RAW_DATA = os.path.join(RAW_DATA_DIR, "raw_data")
 STATS_OUTPUT_DIR = os.path.join(RAW_DATA_DIR, "raw_stats")
 CLEANED_DATA_DIR = os.path.join(DATA_DIR, "cleaned")
 CLEANED_DATA = os.path.join(CLEANED_DATA_DIR, "cleaned_data")

@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from src.config.constants import (
     LOGGING_FILE,
-    RAW_DATA_DIR,
+    RAW_DATA,
     STATS_OUTPUT_DIR,
 )
 
@@ -121,9 +121,9 @@ def generate_raw_data_stats():
         None
     """
     start_time = time.time()
-    for file_name in os.listdir(RAW_DATA_DIR):
+    for file_name in os.listdir(RAW_DATA):
         if file_name.endswith('.csv'):
-            file_path = os.path.join(RAW_DATA_DIR, file_name)
+            file_path = os.path.join(RAW_DATA, file_name)
             summarize_raw_file(file_path, STATS_OUTPUT_DIR)
     total_time_taken = time.time() - start_time
     logger.info(f"Total time taken to process all files: {total_time_taken:.2f} seconds")

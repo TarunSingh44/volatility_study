@@ -7,7 +7,7 @@ import yaml
 from pathlib import Path
 from src.config.constants import (
     LOGGING_FILE,
-    RAW_DATA_DIR,
+    RAW_DATA,
     CLEANED_DATA,
     CLEANED_STATS,
 )
@@ -100,8 +100,8 @@ def raw_data_cleaning():
     """
     start_time = time.time()
 
-    for filename in os.listdir(RAW_DATA_DIR):
-        file_path = os.path.join(RAW_DATA_DIR, filename)
+    for filename in os.listdir(RAW_DATA):
+        file_path = os.path.join(RAW_DATA, filename)
         if filename.endswith('.csv'):
             logger.info(f"Processing file: {filename}")
             breakdown = {}
