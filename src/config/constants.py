@@ -71,3 +71,7 @@ ABS_RETURN_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "data", "abs_return")
 SQUARED_RETURN_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "data", "squared_return")
 ABS_RETURN_PLOTS_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "plots", "abs_return")
 SQUARED_RETURN_PLOTS_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "plots", "squared_return")
+
+# Log Return
+LOG_RETURN_DIR = os.path.join(STATS_DIR, "log_return", "data")
+LOG_RETURN_PLOTS_DIR = os.path.join(STATS_DIR, "log_return", "plots")

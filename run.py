@@ -17,7 +17,7 @@ from src.statistical_analysis.statistical_moments import calc_stats_moments
 from src.statistical_analysis.correlation import calc_correlation
 from src.statistical_analysis.rolling_mean_sd import calc_rolling_mean_sd
 from src.statistical_analysis.abs_return_sq_return import calc_abs_squared_return_stats
-
+from src.statistical_analysis.log_return import calc_log_return_stats
 
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     # Log Return
     logger.info("Step 4.5: Calculating Log Return")
-    
+    calc_log_return_stats(CLEANED_DATA, plot=False)
     logger.info("Step 4.5: Log Return Completed.")
 
     # Sample Autocorrelation 
