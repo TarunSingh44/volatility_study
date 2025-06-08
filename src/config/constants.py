@@ -27,7 +27,14 @@ GDRIVE_ID = "17qFL4wZ_GbjuPgBQ2psA5RXSKnETIRX3"
 # Volatility Stats Constants
 ###################################
 STATS_DIR = os.path.join(DATA_DIR, "volatility_stats")
+
+# Statistical Moments
 STATISTICAL_MOMENTS = os.path.join(STATS_DIR, "statistical_moments")
 STATISTICAL_MOMENTS_ACTUAL = os.path.join(STATISTICAL_MOMENTS, "actual")
 STATISTICAL_MOMENTS_RETURN = os.path.join(STATISTICAL_MOMENTS, "return")
+
+# Correlation 
+CORRELATION =  os.path.join(STATS_DIR, "correlation")
+CORRELATION_ACTUAL = os.path.join(CORRELATION, "actual")
+CORRELATION_RETURN = os.path.join(CORRELATION, "return")
 

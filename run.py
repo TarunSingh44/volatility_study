@@ -7,11 +7,14 @@ from src.config.constants import(
     CLEANED_DATA,
     STATISTICAL_MOMENTS_ACTUAL,
     STATISTICAL_MOMENTS_RETURN,
+    CORRELATION_ACTUAL,
+    CORRELATION_RETURN,
 )
 from src.acquire_data.download_dataset import download_and_unzip_from_gdrive
 from src.data_preprocessing.raw_data_stats import generate_raw_data_stats
 from src.data_preprocessing.clean_raw_data import raw_data_cleaning
 from src.statistical_analysis.statistical_moments import calc_stats_moments
+from src.statistical_analysis.correlation import calc_correlation
 
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
@@ -56,7 +59,7 @@ if __name__ == "__main__":
 
     # Correlation
     logger.info("Step 4.2: Calculating Correlation Matrix")
-    
+    calc_correlation(CLEANED_DATA, CORRELATION_ACTUAL, CORRELATION_RETURN)
     logger.info("Step 4.2: Correlation Matrix Completed.")
 
     # Rolling Mean & SD
