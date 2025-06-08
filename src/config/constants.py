@@ -75,3 +75,18 @@ SQUARED_RETURN_PLOTS_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "plots", "square
 # Log Return
 LOG_RETURN_DIR = os.path.join(STATS_DIR, "log_return", "data")
 LOG_RETURN_PLOTS_DIR = os.path.join(STATS_DIR, "log_return", "plots")
+
+# Auto-correlation
+CROSS_CORR_DIR = os.path.join(STATS_DIR, "cross_auto_correlation", "data") 
+
+CATEGORIES = [
+    '(i) ρ < -0.1',
+    '(ii) -0.1 ≤ ρ < -0.05',
+    '(iii) -0.05 ≤ ρ < 0',
+    '(iv) 0 ≤ ρ < 0.05',
+    '(v) 0.05 ≤ ρ < 0.1',
+    '(vi) 0.1 ≤ ρ'
+]
+
+# Q stats
+Q_STAT_DIR = os.path.join(STATS_DIR, "q_statistic", "data")

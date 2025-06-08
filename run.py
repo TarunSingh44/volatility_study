@@ -18,6 +18,7 @@ from src.statistical_analysis.correlation import calc_correlation
 from src.statistical_analysis.rolling_mean_sd import calc_rolling_mean_sd
 from src.statistical_analysis.abs_return_sq_return import calc_abs_squared_return_stats
 from src.statistical_analysis.log_return import calc_log_return_stats
+from src.statistical_analysis.auto_corr import calc_cross_auto_corr_stats
 
 with open(LOGGING_FILE, 'r') as f:
     config = yaml.safe_load(f)
@@ -82,7 +83,7 @@ if __name__ == "__main__":
 
     # Sample Autocorrelation 
     logger.info("Step 4.6: Calculating Sample Autocorrelation")
-    
+    calc_cross_auto_corr_stats(CLEANED_DATA)
     logger.info("Step 4.6: Sample Autocorrelation Completed.")
 
     # Q-Stats
