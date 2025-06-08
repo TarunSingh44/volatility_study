@@ -64,3 +64,10 @@ ROLLING_STD_RETURN_DIR = os.path.join(ROLLING_RETURN, "data", "rolling_std_retur
 ROLLING_MEAN_RETURN_PLOTS_DIR = os.path.join(ROLLING_RETURN, "plots", "rolling_mean_return")
 ROLLING_STD_RETURN_PLOTS_DIR = os.path.join(ROLLING_RETURN, "plots", "rolling_std_return")
 
+# Abs/Squared Return - Data and Plots
+ABS_SQUARED_RETURN_DIR = os.path.join(STATS_DIR, "abs_squared_return")
+
+ABS_RETURN_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "data", "abs_return")
+SQUARED_RETURN_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "data", "squared_return")
+ABS_RETURN_PLOTS_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "plots", "abs_return")
+SQUARED_RETURN_PLOTS_DIR = os.path.join(ABS_SQUARED_RETURN_DIR, "plots", "squared_return")
