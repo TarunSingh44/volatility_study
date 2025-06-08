@@ -41,3 +41,47 @@ if __name__ == "__main__":
     logger.info("Step 3: Starting Cleaning Process")
     raw_data_cleaning()
     logger.info("Step 3: Data Cleaning Completed.")
+
+    ############################################################
+    ##### STEP 4: Volatility Stats                         #####
+    ############################################################
+
+    # Statistical Moments
+    logger.info("Step 4.1: Calculating Statistical Moments")
+    
+    logger.info("Step 4.1: Statistical Moments Completed.")
+
+    # Correlation
+    logger.info("Step 4.2: Calculating Correlation Matrix")
+    
+    logger.info("Step 4.2: Correlation Matrix Completed.")
+
+    # Rolling Mean & SD
+    logger.info("Step 4.3: Calculating Rolling Mean & SD")
+    
+    logger.info("Step 4.3: Rolling Mean & SD Completed.")
+
+    # Abs Return & Sq Return
+    logger.info("Step 4.4: Calculating Abs Return & Sq Return")
+    
+    logger.info("Step 4.4: Abs Return & Sq Return Completed.")
+
+    # Log Return
+    logger.info("Step 4.5: Calculating Log Return")
+    
+    logger.info("Step 4.5: Log Return Completed.")
+
+    # Sample Autocorrelation 
+    logger.info("Step 4.6: Calculating Sample Autocorrelation")
+    
+    logger.info("Step 4.6: Sample Autocorrelation Completed.")
+
+    # Q-Stats
+    logger.info("Step 4.6: Calculating Q-Stats")
+    
+    logger.info("Step 4.6: Q-Stats Completed.")
+
+    # Z Return
+    logger.info("Step 4.6: Calculating Z Return")
+    
+    logger.info("Step 4.6: Z Return Completed.")
