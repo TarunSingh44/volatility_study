@@ -74,9 +74,14 @@
 
 # Instruction for setting up the repo <a name="setup"></a>
 
-1. Setup GitHub on your system
+1. Clone the repo
+   `git clone https://github.com/TarunSingh44/volatility_study.git`
+   
 2. Create a virtual env and install the dependencies
-3. Run the bash script
+   `pip install -r requirements.txt`
+   
+3. Run the python script
+   `python run.py`
 
 # As a Contributor <a name="contrib"></a>
 
