@@ -7,6 +7,7 @@ from tqdm import tqdm
 import logging
 import logging.config
 import yaml
+from concurrent.futures import ProcessPoolExecutor
 from src.config.constants import (
     LOGGING_FILE,
     VR_STAT_DIR,
@@ -23,15 +24,6 @@ logger = logging.getLogger(__name__)
 os.makedirs(VR_STAT_DIR, exist_ok=True)
 
 def load_timeseries_data(file_path):
-    """
-    Loads a CSV, finds the datetime column, sets it as index, and keeps only numeric columns.
-
-    Args:
-        file_path (str): Path to the input CSV file.
-
-    Returns:
-        pd.DataFrame: DataFrame with datetime index and only numeric columns.
-    """
     try:
         df = pd.read_csv(file_path)
         time_cols = [col for col in df.columns if "date" in col.lower() or "time" in col.lower()]
@@ -48,135 +40,101 @@ def load_timeseries_data(file_path):
         logger.error(f"Error loading {file_path}: {e}", exc_info=True)
         return pd.DataFrame()
 
+def autocorr_vec(x, y, lag):
+    if len(x) <= lag:
+        return np.nan
+    return np.corrcoef(x[:-lag], y[lag:])[0, 1]
+
 def calculate_vr_hat(series, N):
-    """
-    Calculates VR_hat for a time series and lag N.
-
-    Args:
-        series (np.ndarray): Numeric series.
-        N (int): Lag value.
-
-    Returns:
-        float: VR_hat value.
-    """
+    if len(series) < N:
+        return np.nan
     mu = np.mean(series)
-    rho_hat = [np.corrcoef(series[:-tau], series[tau:])[0, 1] for tau in range(1, N)]
-    VR_hat = 1 + (2 / N) * np.sum([(N - tau) * rho for tau, rho in enumerate(rho_hat, start=1)])
+    rhos = np.array([autocorr_vec(series, series, tau) for tau in range(1, N)])
+    N_tau = np.arange(N - 1, 0, -1)
+    VR_hat = 1 + (2 / N) * np.nansum(N_tau * rhos)
     return VR_hat
 
 def calculate_b_tau(series, tau):
-    """
-    Helper for VR variance: autocovariance at lag tau.
-
-    Args:
-        series (np.ndarray): Numeric series.
-        tau (int): Lag.
-
-    Returns:
-        float: b_tau value.
-    """
     s_t = (series - np.mean(series)) ** 2
-    numerator = np.sum([s_t[t] * s_t[t + tau] for t in range(len(s_t) - tau)])
+    if len(s_t) <= tau:
+        return np.nan
+    numerator = np.dot(s_t[:-tau], s_t[tau:])
     denominator = np.sum(s_t) ** 2
-    b_tau = (len(series) * numerator) / denominator
+    b_tau = (len(series) * numerator) / denominator if denominator != 0 else np.nan
     return b_tau
 
 def calculate_v_N(series, N):
-    """
-    Calculates v_N for VR variance.
-
-    Args:
-        series (np.ndarray): Numeric series.
-        N (int): Lag.
-
-    Returns:
-        float: v_N value.
-    """
-    b_tau_values = [calculate_b_tau(series, tau) for tau in range(1, N)]
-    v_N = (4 / N ** 2) * np.sum([(N - tau) ** 2 * b_tau for tau, b_tau in enumerate(b_tau_values, start=1)])
+    b_tau_values = np.array([calculate_b_tau(series, tau) for tau in range(1, N)])
+    N_tau = np.arange(N - 1, 0, -1)
+    v_N = (4 / N ** 2) * np.nansum((N_tau ** 2) * b_tau_values)
     return v_N
 
 def calculate_cross_vr_hat(series1, series2, N):
-    """
-    Calculates cross VR_hat for two time series and lag N.
-
-    Args:
-        series1 (np.ndarray): Numeric series 1.
-        series2 (np.ndarray): Numeric series 2.
-        N (int): Lag.
-
-    Returns:
-        float: cross VR_hat value.
-    """
-    rho_hat_cross = [np.corrcoef(series1[:-tau], series2[tau:])[0, 1] for tau in range(1, N)]
-    VR_hat_cross = 1 + (2 / N) * np.sum([(N - tau) * rho for tau, rho in enumerate(rho_hat_cross, start=1)])
+    if len(series1) < N or len(series2) < N:
+        return np.nan
+    rhos = np.array([autocorr_vec(series1, series2, tau) for tau in range(1, N)])
+    N_tau = np.arange(N - 1, 0, -1)
+    VR_hat_cross = 1 + (2 / N) * np.nansum(N_tau * rhos)
     return VR_hat_cross
 
-def run_vr_test(return_data, label, file_name, comparison_data, Z_values=[2, 5, 50]):
-    """
-    Computes VR statistics for all combinations of columns in return_data.
+def run_vr_test_parallel(args):
+    """Single pair computation for parallel processing."""
+    data, label, file_name, Z_values, col1, col2 = args
+    result_rows = []
+    series1 = data[col1].dropna().values
+    series2 = data[col2].dropna().values if col2 is not None else None
 
-    Args:
-        return_data (pd.DataFrame): DataFrame of returns/abs returns/squared returns.
-        label (str): Label for type ("Return", "Abs Return", etc.).
-        file_name (str): Filename of the input file.
-        comparison_data (list): List to collect all results.
-        Z_values (list): Lags to use.
-
-    Returns:
-        None
-    """
-    numerical_columns = return_data.columns
-    total_combinations = len(list(combinations(numerical_columns, 2))) + len(numerical_columns)
-    with tqdm(total=total_combinations, desc=f"VR test {label} {file_name}", ncols=100, leave=False) as pbar:
-        # Cross series
-        for col1, col2 in combinations(numerical_columns, 2):
-            series1 = return_data[col1].dropna().values
-            series2 = return_data[col2].dropna().values
-            for N in Z_values:
-                VR_hat_cross = calculate_cross_vr_hat(series1, series2, N)
-                v_N_cross = calculate_v_N(series1, N) + calculate_v_N(series2, N)
-                z_N_cross = (VR_hat_cross - 1) / np.sqrt(v_N_cross / min(len(series1), len(series2)))
-                comparison_data.append({
-                    "Filename": file_name,
-                    "Frequency": label,
-                    "Series 1": col1,
-                    "Series 2": col2,
-                    "N": N,
-                    "z_N": z_N_cross
-                })
-            pbar.update(1)
+    if col2 is None or col1 == col2:
         # Self series
-        for col in numerical_columns:
-            series = return_data[col].dropna().values
-            for N in Z_values:
-                VR_hat_self = calculate_vr_hat(series, N)
-                v_N_self = calculate_v_N(series, N)
-                z_N_self = (VR_hat_self - 1) / np.sqrt(v_N_self / len(series))
-                comparison_data.append({
-                    "Filename": file_name,
-                    "Frequency": label,
-                    "Series 1": col,
-                    "Series 2": col,
-                    "N": N,
-                    "z_N": z_N_self
-                })
-            pbar.update(1)
+        for N in Z_values:
+            VR_hat_self = calculate_vr_hat(series1, N)
+            v_N_self = calculate_v_N(series1, N)
+            denom = np.sqrt(v_N_self / len(series1)) if v_N_self and len(series1) else np.nan
+            z_N_self = (VR_hat_self - 1) / denom if denom else np.nan
+            result_rows.append({
+                "Filename": file_name,
+                "Frequency": label,
+                "Series 1": col1,
+                "Series 2": col1,
+                "N": N,
+                "z_N": z_N_self
+            })
+    else:
+        # Cross series
+        for N in Z_values:
+            VR_hat_cross = calculate_cross_vr_hat(series1, series2, N)
+            v_N_cross = calculate_v_N(series1, N) + calculate_v_N(series2, N)
+            denom = np.sqrt(v_N_cross / min(len(series1), len(series2))) if v_N_cross and min(len(series1), len(series2)) else np.nan
+            z_N_cross = (VR_hat_cross - 1) / denom if denom else np.nan
+            result_rows.append({
+                "Filename": file_name,
+                "Frequency": label,
+                "Series 1": col1,
+                "Series 2": col2,
+                "N": N,
+                "z_N": z_N_cross
+            })
+    return result_rows
 
-def calc_vr_statistic_stats(source_dir):
-    """
-    Computes and saves the VR-statistic for each file in source_dir.
+def run_vr_test(return_data, label, file_name, comparison_data, Z_values=[2, 5, 50], n_jobs=None):
+    numerical_columns = return_data.columns
+    all_args = []
+    # Cross series
+    for col1, col2 in combinations(numerical_columns, 2):
+        all_args.append((return_data, label, file_name, Z_values, col1, col2))
+    # Self series
+    for col in numerical_columns:
+        all_args.append((return_data, label, file_name, Z_values, col, None))
+    # Parallel processing
+    with ProcessPoolExecutor(max_workers=n_jobs) as executor:
+        for result in tqdm(executor.map(run_vr_test_parallel, all_args), total=len(all_args), desc=f"VR test {label} {file_name}", leave=False):
+            comparison_data.extend(result)
 
-    Args:
-        source_dir (str): Directory with cleaned input files.
-
-    Returns:
-        None
-    """
+def calc_vr_statistic_stats(source_dir, n_jobs=None):
     start_time = time.time()
     comparison_data = []
     file_list = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
-    for file_name in tqdm(file_list, desc="Processing files", ncols=100):
+    for file_name in tqdm(file_list, desc="Processing files"):
         file_path = os.path.join(source_dir, file_name)
         try:
             df = load_timeseries_data(file_path)
@@ -186,9 +144,9 @@ def calc_vr_statistic_stats(source_dir):
             returns = np.log10(df / df.shift(1)).dropna()
             abs_returns = returns.abs()
             squared_returns = returns ** 2
-            run_vr_test(returns, 'Return', file_name, comparison_data)
-            run_vr_test(abs_returns, 'Abs Return', file_name, comparison_data)
-            run_vr_test(squared_returns, 'Squared Return', file_name, comparison_data)
+            run_vr_test(returns, 'Return', file_name, comparison_data, n_jobs=n_jobs)
+            run_vr_test(abs_returns, 'Abs Return', file_name, comparison_data, n_jobs=n_jobs)
+            run_vr_test(squared_returns, 'Squared Return', file_name, comparison_data, n_jobs=n_jobs)
         except Exception as e:
             logger.error(f"Failed VR test for {file_name}: {e}", exc_info=True)
             continue
@@ -199,4 +157,5 @@ def calc_vr_statistic_stats(source_dir):
     logger.info(f"Comparison table saved to {comparison_csv_path}")
     total_time = time.time() - start_time
     logger.info(f"Time taken to run the VR-statistic code: {total_time:.2f} seconds")
+
 
