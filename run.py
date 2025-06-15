@@ -31,68 +31,68 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     
-    ###########################################################
-    #### STEP 1: Acquire Raw Data Files from Google Drive #####
-    ###########################################################
+    ##########################################################
+    ### STEP 1: Acquire Raw Data Files from Google Drive #####
+    ##########################################################
 
-    # logger.info("Step 1: Starting to download data from Google Drive")
-    # download_and_unzip_from_gdrive(GDRIVE_ID, RAW_DATA)
-    # logger.info("Step 1: All raw data files acquired successfully.")
+    logger.info("Step 1: Starting to download data from Google Drive")
+    download_and_unzip_from_gdrive(GDRIVE_ID, RAW_DATA)
+    logger.info("Step 1: All raw data files acquired successfully.")
 
-    # ############################################################
-    # ##### STEP 2: Get Raw Data Stats                       #####
-    # ############################################################
+    ############################################################
+    ##### STEP 2: Get Raw Data Stats                       #####
+    ############################################################
 
-    # logger.info("Step 2: Generating Raw Data Stats")
-    # generate_raw_data_stats()
-    # logger.info("Step 2: Raw Data Stats Generated.")
+    logger.info("Step 2: Generating Raw Data Stats")
+    generate_raw_data_stats()
+    logger.info("Step 2: Raw Data Stats Generated.")
 
-    # ############################################################
-    # ##### STEP 3: Clean Data & Save Statistics             #####
-    # ############################################################
+    ############################################################
+    ##### STEP 3: Clean Data & Save Statistics             #####
+    ############################################################
 
-    # logger.info("Step 3: Starting Cleaning Process")
-    # raw_data_cleaning()
-    # logger.info("Step 3: Data Cleaning Completed.")
+    logger.info("Step 3: Starting Cleaning Process")
+    raw_data_cleaning()
+    logger.info("Step 3: Data Cleaning Completed.")
 
-    # ############################################################
-    # ##### STEP 4: Volatility Stats                         #####
-    # ############################################################
+    ############################################################
+    ##### STEP 4: Volatility Stats                         #####
+    ############################################################
 
-    # # Statistical Moments
-    # logger.info("Step 4.1: Calculating Statistical Moments")
-    # calc_stats_moments(CLEANED_DATA, STATISTICAL_MOMENTS_ACTUAL, STATISTICAL_MOMENTS_RETURN)
-    # logger.info("Step 4.1: Statistical Moments Completed.")
+    # Statistical Moments
+    logger.info("Step 4.1: Calculating Statistical Moments")
+    calc_stats_moments(CLEANED_DATA, STATISTICAL_MOMENTS_ACTUAL, STATISTICAL_MOMENTS_RETURN)
+    logger.info("Step 4.1: Statistical Moments Completed.")
 
-    # # Correlation
-    # logger.info("Step 4.2: Calculating Correlation Matrix")
-    # calc_correlation(CLEANED_DATA, CORRELATION_ACTUAL, CORRELATION_RETURN)
-    # logger.info("Step 4.2: Correlation Matrix Completed.")
+    # Correlation
+    logger.info("Step 4.2: Calculating Correlation Matrix")
+    calc_correlation(CLEANED_DATA, CORRELATION_ACTUAL, CORRELATION_RETURN)
+    logger.info("Step 4.2: Correlation Matrix Completed.")
 
-    # # Rolling Mean & SD
-    # logger.info("Step 4.3: Calculating Rolling Mean & SD")
-    # calc_rolling_mean_sd(CLEANED_DATA, plot=False)
-    # logger.info("Step 4.3: Rolling Mean & SD Completed.")
+    # Rolling Mean & SD
+    logger.info("Step 4.3: Calculating Rolling Mean & SD")
+    calc_rolling_mean_sd(CLEANED_DATA, plot=False)
+    logger.info("Step 4.3: Rolling Mean & SD Completed.")
 
-    # # Abs Return & Sq Return
-    # logger.info("Step 4.4: Calculating Abs Return & Sq Return")
-    # calc_abs_squared_return_stats(CLEANED_DATA, plot=False)
-    # logger.info("Step 4.4: Abs Return & Sq Return Completed.")
+    # Abs Return & Sq Return
+    logger.info("Step 4.4: Calculating Abs Return & Sq Return")
+    calc_abs_squared_return_stats(CLEANED_DATA, plot=False)
+    logger.info("Step 4.4: Abs Return & Sq Return Completed.")
 
-    # # Log Return
-    # logger.info("Step 4.5: Calculating Log Return")
-    # calc_log_return_stats(CLEANED_DATA, plot=False)
-    # logger.info("Step 4.5: Log Return Completed.")
+    # Log Return
+    logger.info("Step 4.5: Calculating Log Return")
+    calc_log_return_stats(CLEANED_DATA, plot=False)
+    logger.info("Step 4.5: Log Return Completed.")
 
-    # # Sample Autocorrelation 
-    # logger.info("Step 4.6: Calculating Sample Autocorrelation")
-    # calc_cross_auto_corr_stats(CLEANED_DATA)
-    # logger.info("Step 4.6: Sample Autocorrelation Completed.")
+    # Sample Autocorrelation 
+    logger.info("Step 4.6: Calculating Sample Autocorrelation")
+    calc_cross_auto_corr_stats(CLEANED_DATA)
+    logger.info("Step 4.6: Sample Autocorrelation Completed.")
 
-    # # Q-Stats
-    # logger.info("Step 4.7: Calculating Q-Stats")
-    # calc_q_statistic_stats(CLEANED_DATA, max_tau=30, n_jobs=4)
-    # logger.info("Step 4.7: Q-Stats Completed.")
+    # Q-Stats
+    logger.info("Step 4.7: Calculating Q-Stats")
+    calc_q_statistic_stats(CLEANED_DATA, max_tau=30, n_jobs=4)
+    logger.info("Step 4.7: Q-Stats Completed.")
 
     # Z Return
     logger.info("Step 4.8: Calculating VR test")
