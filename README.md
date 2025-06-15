@@ -23,14 +23,65 @@
 
 ### Volatility Study Folder Structure 
 ```
-|- README.md
+<BASE_PATH>/
+│
+└── data/
+    ├── raw/
+    │   ├── raw_data/
+    │   └── raw_stats/
+    ├── cleaned/
+    │   ├── cleaned_data/
+    │   └── cleaned_stats/
+    └── volatility_stats/
+        ├── statistical_moments/
+        │   ├── actual/
+        │   └── return/
+        ├── correlation/
+        │   ├── actual/
+        │   └── return/
+        ├── rolling_stats/
+        │   ├── actual/
+        │   │   ├── data/
+        │   │   │   ├── rolling_mean/
+        │   │   │   └── rolling_std/
+        │   │   └── plots/
+        │   │       ├── rolling_mean/
+        │   │       └── rolling_std/
+        │   └── return/
+        │       ├── data/
+        │       │   ├── rolling_mean_return/
+        │       │   └── rolling_std_return/
+        │       └── plots/
+        │           ├── rolling_mean_return/
+        │           └── rolling_std_return/
+        ├── abs_squared_return/
+        │   ├── data/
+        │   │   ├── abs_return/
+        │   │   └── squared_return/
+        │   └── plots/
+        │       ├── abs_return/
+        │       └── squared_return/
+        ├── log_return/
+        │   ├── data/
+        │   └── plots/
+        ├── cross_auto_correlation/
+        │   └── data/
+        ├── q_statistic/
+        │   └── data/
+        └── variance_ratio_test/
+            └── data/
 ```
 
 # Instruction for setting up the repo <a name="setup"></a>
 
-1. Setup GitHub on your system
+1. Clone the repo
+   `git clone https://github.com/TarunSingh44/volatility_study.git`
+   
 2. Create a virtual env and install the dependencies
-3. Run the bash script
+   `pip install -r requirements.txt`
+   
+3. Run the python script
+   `python run.py`
 
 # As a Contributor <a name="contrib"></a>
 
