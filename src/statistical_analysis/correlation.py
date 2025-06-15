@@ -13,7 +13,6 @@ from src.config.constants import (
     LOGGING_FILE,
 )
 
-# ============ Logging Setup ============
 if os.path.exists(LOGGING_FILE):
     with open(LOGGING_FILE, 'r') as f:
         config = yaml.safe_load(f)
@@ -23,7 +22,6 @@ else:
 
 logger = logging.getLogger(__name__)
 
-# ============ Data Functions ============
 def load_timeseries_data(file_path):
     """
     Loads and preprocesses timeseries data from a CSV file.

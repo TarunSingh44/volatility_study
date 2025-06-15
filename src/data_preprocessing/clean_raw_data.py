@@ -66,20 +66,16 @@ def clean_dataframe(df, breakdown):
     initial_rows = len(df)
     breakdown['initial_rows'] = initial_rows
 
-    # Drop columns with too many NaNs
     threshold = len(df) * 0.5
     df_cleaned = df.dropna(thresh=threshold, axis=1)
     breakdown['after_drop_columns_NaN'] = len(df_cleaned)
 
-    # Drop rows with any NaNs
     df_cleaned = df_cleaned.dropna()
     breakdown['after_drop_rows_NaN'] = len(df_cleaned)
 
-    # Drop columns where 50%+ values are 0
     df_cleaned = df_cleaned.loc[:, (df_cleaned != 0).mean() > 0.5]
     breakdown['after_drop_columns_zero'] = len(df_cleaned)
 
-    # Drop rows with any 0s
     df_cleaned = df_cleaned[(df_cleaned != 0).all(axis=1)]
     breakdown['after_drop_rows_zero'] = len(df_cleaned)
 
@@ -106,16 +102,13 @@ def raw_data_cleaning():
             logger.info(f"Processing file: {filename}")
             breakdown = {}
 
-            # Load
             df = load_timeseries_data(file_path)
             breakdown['loaded'] = len(df)
 
-            # Clean
             df_cleaned = clean_dataframe(df, breakdown)
             cleaned_filename = f"Cleaned_{filename}"
             cleaned_file_path = os.path.join(CLEANED_DATA, cleaned_filename)
 
-            # Save and reload for a final zero-row check
             df_cleaned.to_csv(cleaned_file_path, index=False)
             df_final = pd.read_csv(cleaned_file_path)
             before_final_zero = len(df_final)
@@ -123,7 +116,6 @@ def raw_data_cleaning():
             after_final_zero = len(df_final)
             df_final.to_csv(cleaned_file_path, index=False)
 
-            # Prepare stats
             stats_dict = {
                 "Original_rows": breakdown.get('initial_rows', 0),
                 "After_drop_NaN_columns": breakdown.get('after_drop_columns_NaN', 0),

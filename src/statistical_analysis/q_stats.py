@@ -24,6 +24,27 @@ logger = logging.getLogger(__name__)
 os.makedirs(Q_STAT_DIR, exist_ok=True)
 
 def load_timeseries_data(file_path):
+
+    """Read a CSV file and return a cleaned numeric DataFrame indexed by datetime.
+
+    The function
+    1. Detects a column whose name contains "date" or "time".
+    2. Parses that column to ``datetime64[ns]`` and sets it as the index.
+    3. Drops non-numeric columns and rows with NaT in the index.
+
+    Args:
+        file_path: Absolute or relative path to the CSV file.
+
+    Returns:
+        A ``pd.DataFrame`` with a ``DatetimeIndex`` and only numeric columns.
+        If an error occurs, an **empty** DataFrame is returned.
+
+    Raises:
+        ValueError: If no obvious date/time column is present in the CSV.
+        All other exceptions are caught, logged, and converted to an empty
+        DataFrame so batch processing continues.
+    """
+
     try:
         t1 = time.time()
         df = pd.read_csv(file_path)
@@ -44,6 +65,26 @@ def load_timeseries_data(file_path):
         return pd.DataFrame()
 
 def _calc_q_pair(args):
+
+    """Compute cumulative Q-statistic sequence for one column pair.
+
+    This helper is designed for ``ProcessPoolExecutor`` mapping, so the
+    signature is a single *tuple* of arguments.
+
+    Args:
+        args: Tuple ``(col1, col2, s1, s2, n, max_tau)`` where
+
+            * ``col1, col2`` – column names (str)
+            * ``s1, s2``     – centred series as 1-D ``np.ndarray``
+            * ``n``          – sample length (int)
+            * ``max_tau``    – maximum lag to include (int)
+
+    Returns:
+        2-tuple:
+            * key ``(col1, col2)``
+            * list of Q-statistics for lags ``1 … max_tau`` (length ``max_tau``)
+    """
+
     col1, col2, s1, s2, n, max_tau = args
     ac_sqs = []
     length = len(s1)
@@ -60,6 +101,19 @@ def _calc_q_pair(args):
     return (col1, col2), ac_sqs
 
 def parallel_cross_sample_Q_statistic(returns, max_tau, n_jobs=None):
+
+    """Compute cross-sample Q-statistics for every column pair in parallel.
+
+    Args:
+        returns: DataFrame of *aligned* returns, each column a series.
+        max_tau: Largest lag to include in the cumulative statistic.
+        n_jobs:  Number of worker processes (``None`` → default by Executor).
+
+    Returns:
+        Dictionary mapping ``(col1, col2)`` → list of Q values (index 0 is
+        lag 1, … index ``max_tau-1`` is lag ``max_tau``).
+    """
+
     n = len(returns)
     columns = returns.columns
     centered = {col: (returns[col] - returns[col].mean()).values for col in columns}
@@ -86,6 +140,26 @@ def calc_q_statistic_stats(
     max_tau=30,
     n_jobs=None
 ):
+    
+    """Batch-process all CSV files in a directory and compute Q-statistics.
+
+    For each file the function:
+
+    1. Loads and cleans the data with :pyfunc:`load_timeseries_data`.
+    2. Resamples to every frequency defined in ``FREQUENCIES``.
+    3. Calculates log-returns, then cross-sample Q-statistics up to
+       ``max_tau`` with :pyfunc:`parallel_cross_sample_Q_statistic`.
+    4. Writes a per-file CSV of Q values and aggregates a comparison table.
+
+    Args:
+        source_dir: Directory containing the input CSV files.
+        max_tau: Maximum lag (positive integer) for the Q statistic.
+        n_jobs:  Number of parallel worker processes
+
+    Returns:
+        None. (All outputs are files and log messages.)
+    """
+
     file_list = os.listdir(source_dir)
     file_list = [file for file in file_list if os.path.isfile(os.path.join(source_dir, file))]
     comparison_data = []

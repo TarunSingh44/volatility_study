@@ -9,7 +9,6 @@ from src.config.constants import(
     LOGGING_FILE,
 )
 
-# Logging Setup 
 if os.path.exists(LOGGING_FILE):
     with open(LOGGING_FILE, 'r') as f:
         config = yaml.safe_load(f)
@@ -20,7 +19,6 @@ else:
 logger = logging.getLogger(__name__)
 
 
-# Data Download & Unzip Function
 def download_and_unzip_from_gdrive(gdrive_id, dest_dir):
     """
     Downloads a zip file from Google Drive using its file ID, unzips it to the specified destination directory, 
@@ -43,12 +41,10 @@ def download_and_unzip_from_gdrive(gdrive_id, dest_dir):
         gdown.download(url, output_path, quiet=False)
         logger.info(f"Downloaded to {output_path}")
 
-        # Unzip
         with zipfile.ZipFile(output_path, 'r') as zip_ref:
             zip_ref.extractall(dest_dir)
         logger.info(f"Extracted contents to {dest_dir}")
 
-        # Remove zip file if desired
         os.remove(output_path)
         logger.info(f"Removed downloaded zip file: {output_path}")
 

@@ -155,9 +155,8 @@ def calc_rolling_mean_sd(source_dir, window_size=5, plot=True):
             base_file_name = os.path.splitext(file_name)[0]
 
             for freq_name, freq in FREQUENCIES.items():
-                # Resample if frequency is set
+
                 df_resampled = df.resample(freq).mean() if freq and isinstance(df.index, pd.DatetimeIndex) else df
-                # Rolling mean/std (actual)
                 rolling_mean = df_resampled.rolling(window=window_size).mean().dropna()
                 rolling_std = df_resampled.rolling(window=window_size).std().dropna()
                 save_rolling_stats_and_plot(
@@ -179,7 +178,6 @@ def calc_rolling_mean_sd(source_dir, window_size=5, plot=True):
                     plot=plot
                 )
 
-                # Rolling mean/std (returns)
                 returns = calculate_returns(df_resampled)
                 rolling_mean_return = returns.rolling(window=window_size).mean().dropna()
                 rolling_std_return = returns.rolling(window=window_size).std().dropna()
