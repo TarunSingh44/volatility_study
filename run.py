@@ -1,5 +1,6 @@
 import yaml
 import logging
+import os
 from src.config.constants import(
     LOGGING_FILE,
     RAW_DATA,
@@ -30,9 +31,9 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     
-    ############################################################
-    ##### STEP 1: Acquire Raw Data Files from Google Drive #####
-    ############################################################
+    ###########################################################
+    #### STEP 1: Acquire Raw Data Files from Google Drive #####
+    ###########################################################
 
     logger.info("Step 1: Starting to download data from Google Drive")
     download_and_unzip_from_gdrive(GDRIVE_ID, RAW_DATA)
@@ -90,7 +91,7 @@ if __name__ == "__main__":
 
     # Q-Stats
     logger.info("Step 4.7: Calculating Q-Stats")
-    calc_q_statistic_stats(CLEANED_DATA, max_tau=30)
+    calc_q_statistic_stats(CLEANED_DATA, max_tau=30, n_jobs=4)
     logger.info("Step 4.7: Q-Stats Completed.")
 
     # Z Return

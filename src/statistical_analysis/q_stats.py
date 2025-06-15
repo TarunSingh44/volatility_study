@@ -6,6 +6,7 @@ import logging
 import logging.config
 import yaml
 from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from src.config.constants import (
     LOGGING_FILE,
     Q_STAT_DIR,
@@ -23,15 +24,6 @@ logger = logging.getLogger(__name__)
 os.makedirs(Q_STAT_DIR, exist_ok=True)
 
 def load_timeseries_data(file_path):
-    """
-    Loads a CSV, finds the datetime column, sets it as index, and keeps only numeric columns.
-
-    Args:
-        file_path (str): Path to the input CSV file.
-
-    Returns:
-        pd.DataFrame: DataFrame with datetime index and only numeric columns.
-    """
     try:
         t1 = time.time()
         df = pd.read_csv(file_path)
@@ -51,73 +43,54 @@ def load_timeseries_data(file_path):
         logger.error(f"Error loading {file_path}: {e}", exc_info=True)
         return pd.DataFrame()
 
-def cross_sample_autocorrelation(series1, series2, tau):
-    """
-    Computes the cross-sample autocorrelation between two series at a given lag.
+def _calc_q_pair(args):
+    col1, col2, s1, s2, n, max_tau = args
+    ac_sqs = []
+    length = len(s1)
+    for k in range(1, max_tau + 1):
+        Q_k = 0
+        for tau in range(1, k + 1):
+            if length > tau:
+                num = np.dot(s1[:-tau], s2[tau:])
+                denom = np.sqrt(np.dot(s1, s1) * np.dot(s2, s2))
+                autocorr = num / denom if denom != 0 else np.nan
+                if not np.isnan(autocorr):
+                    Q_k += autocorr ** 2
+        ac_sqs.append(Q_k * n)
+    return (col1, col2), ac_sqs
 
-    Args:
-        series1 (np.ndarray): First numeric series.
-        series2 (np.ndarray): Second numeric series.
-        tau (int): Lag value.
-
-    Returns:
-        float: Cross-sample autocorrelation, or np.nan if denominator is zero.
-    """
-    r_bar1 = series1.mean()
-    r_bar2 = series2.mean()
-    numerator = np.sum((series1[:-tau] - r_bar1) * (series2[tau:] - r_bar2))
-    denominator = np.sqrt(np.sum((series1 - r_bar1) ** 2) * np.sum((series2 - r_bar2) ** 2))
-    return numerator / denominator if denominator != 0 else np.nan
-
-def cross_sample_Q_statistic(returns, max_tau):
-    """
-    Calculates the cross-sample Q-statistic for all pairs of columns in returns.
-
-    Args:
-        returns (pd.DataFrame): DataFrame of returns.
-        max_tau (int): Maximum lag to compute.
-
-    Returns:
-        dict: Dictionary with keys (col1, col2) and values as lists of Q-statistics for each lag.
-    """
+def parallel_cross_sample_Q_statistic(returns, max_tau, n_jobs=None):
     n = len(returns)
-    Q_values = {}
     columns = returns.columns
-    for i, col1 in enumerate(columns):
-        for j, col2 in enumerate(columns):
-            if i <= j:
-                Q_k_values = []
-                for k in range(1, max_tau + 1):
-                    Q_k = 0
-                    for tau in range(1, k + 1):
-                        series1 = returns[col1].dropna().values
-                        series2 = returns[col2].dropna().values
-                        if len(series1) > tau and len(series2) > tau:
-                            autocorr = cross_sample_autocorrelation(series1, series2, tau)
-                            if not np.isnan(autocorr):
-                                Q_k += autocorr ** 2
-                    Q_k_values.append(Q_k * n)
-                Q_values[(col1, col2)] = Q_k_values
+    centered = {col: (returns[col] - returns[col].mean()).values for col in columns}
+    tasks = [
+        (col1, col2, centered[col1], centered[col2], n, max_tau)
+        for i, col1 in enumerate(columns)
+        for j, col2 in enumerate(columns) if i <= j
+    ]
+    Q_values = {}
+    with ProcessPoolExecutor(max_workers=n_jobs) as executor:
+        results = list(tqdm(
+            executor.map(_calc_q_pair, tasks),
+            total=len(tasks),
+            desc="Cross Q-stat Pairs",
+            leave=False
+        ))
+    for key, vals in results:
+        Q_values[key] = vals
     return Q_values
+
 
 def calc_q_statistic_stats(
     source_dir,
-    max_tau=30
+    max_tau=30,
+    n_jobs=None
 ):
-    """
-    Computes and saves the cross-sample Q-statistic for each file and frequency.
-
-    Args:
-        source_dir (str): Directory containing input files.
-        max_tau (int): Maximum lag for Q-statistic.
-
-    Returns:
-        None
-    """
     file_list = os.listdir(source_dir)
     file_list = [file for file in file_list if os.path.isfile(os.path.join(source_dir, file))]
     comparison_data = []
     start_time = time.time()
+    logger.info(f"Number of workers:" + str(n_jobs))
 
     for file_name in tqdm(file_list, desc="Processing files"):
         file_path = os.path.join(source_dir, file_name)
@@ -137,16 +110,17 @@ def calc_q_statistic_stats(
                 else:
                     df_resampled = df
                 returns = np.log10(df_resampled / df_resampled.shift(1)).dropna()
-                cross_Q_statistic_results = {}
-                q_stat_dict = cross_sample_Q_statistic(returns, max_tau)
-                for (col1, col2), Q_values in tqdm(q_stat_dict.items(), desc=f"Q-stat {file_name}-{freq_name}", leave=False):
-                    cross_Q_statistic_results[(col1, col2)] = Q_values
-                cross_Q_statistic_df = pd.DataFrame(cross_Q_statistic_results, index=range(1, max_tau + 1))
+                if returns.empty or returns.shape[1] == 0:
+                    logger.warning(f"No valid returns for {file_name} at {freq_name}")
+                    continue
+
+                q_stat_dict = parallel_cross_sample_Q_statistic(returns, max_tau, n_jobs=n_jobs)
+                cross_Q_statistic_df = pd.DataFrame(q_stat_dict, index=range(1, max_tau + 1))
                 q_stat_path = os.path.join(Q_STAT_DIR, f'{os.path.splitext(file_name)[0]}_cross_Q_statistic_{freq_name}.csv')
                 cross_Q_statistic_df.to_csv(q_stat_path)
                 logger.info(f"Q-statistic for {file_name} at {freq_name} frequency saved to {q_stat_path}")
 
-                for (col1, col2), q_values in cross_Q_statistic_results.items():
+                for (col1, col2), q_values in q_stat_dict.items():
                     for lag, q_value in enumerate(q_values, start=1):
                         comparison_data.append({
                             "Filename": file_name,
@@ -168,5 +142,3 @@ def calc_q_statistic_stats(
 
     total_time = time.time() - start_time
     logger.info(f"Time taken to run the Q-statistic code: {total_time:.2f} seconds")
-
-
