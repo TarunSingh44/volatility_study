@@ -63,48 +63,43 @@ if __name__ == "__main__":
     ##### STEP 4: Volatility Stats                         #####
     ############################################################
 
-    # Statistical Moments
-    logger.info("Step 4.1: Calculating Statistical Moments")
-    calc_stats_moments(CLEANED_DATA, STATISTICAL_MOMENTS_ACTUAL, STATISTICAL_MOMENTS_RETURN)
-    logger.info("Step 4.1: Statistical Moments Completed.")
-
     # Correlation
-    logger.info("Step 4.2: Calculating Correlation Matrix")
+    logger.info("Step 4.1: Calculating Correlation Matrix")
     calc_correlation(CLEANED_DATA, CORRELATION_ACTUAL, CORRELATION_RETURN)
-    logger.info("Step 4.2: Correlation Matrix Completed.")
+    logger.info("Step 4.1: Correlation Matrix Completed.")
 
     # Rolling Mean & SD
-    logger.info("Step 4.3: Calculating Rolling Mean & SD")
+    logger.info("Step 4.2: Calculating Rolling Mean & SD")
     calc_rolling_mean_sd(CLEANED_DATA, plot=False)
-    logger.info("Step 4.3: Rolling Mean & SD Completed.")
+    logger.info("Step 4.2: Rolling Mean & SD Completed.")
 
     # Abs Return & Sq Return
-    logger.info("Step 4.4: Calculating Abs Return & Sq Return")
+    logger.info("Step 4.3: Calculating Abs Return & Sq Return")
     calc_abs_squared_return_stats(CLEANED_DATA, plot=False)
-    logger.info("Step 4.4: Abs Return & Sq Return Completed.")
+    logger.info("Step 4.3: Abs Return & Sq Return Completed.")
 
     # Log Return
-    logger.info("Step 4.5: Calculating Log Return")
+    logger.info("Step 4.4: Calculating Log Return")
     calc_log_return_stats(CLEANED_DATA, plot=False)
-    logger.info("Step 4.5: Log Return Completed.")
+    logger.info("Step 4.4: Log Return Completed.")
 
     # Sample Autocorrelation 
-    logger.info("Step 4.6: Calculating Sample Autocorrelation")
+    logger.info("Step 4.5: Calculating Sample Autocorrelation")
     calc_cross_auto_corr_stats(CLEANED_DATA)
-    logger.info("Step 4.6: Sample Autocorrelation Completed.")
+    logger.info("Step 4.5: Sample Autocorrelation Completed.")
 
     # Q-Stats
-    logger.info("Step 4.7: Calculating Q-Stats")
+    logger.info("Step 4.6: Calculating Q-Stats")
     calc_q_statistic_stats(CLEANED_DATA, max_tau=30, n_jobs=4)
-    logger.info("Step 4.7: Q-Stats Completed.")
+    logger.info("Step 4.6: Q-Stats Completed.")
 
     # Z Return
-    logger.info("Step 4.8: Calculating VR test")
+    logger.info("Step 4.7: Calculating VR test")
     calc_vr_statistic_stats(CLEANED_DATA, n_jobs=4)
-    logger.info("Step 4.8: VR test Completed.")
+    logger.info("Step 4.7: VR test Completed.")
 
     # Statistical Moments for Actual, Return, Abs Return, Sq Return and Log(abs( r - avg[ r ] ) )  (All Frequencies)
-    logger.info("Step 4.9: Calculating Statistical Moments for Actual, Return, Abs Return, Sq Return & Log Return")
+    logger.info("Step 4.8: Calculating Statistical Moments for Actual, Return, Abs Return, Sq Return & Log Return")
     output_stats_moments(
         CLEANED_DATA,
         STATISTICAL_MOMENTS_ACTUAL,
@@ -114,4 +109,4 @@ if __name__ == "__main__":
         STATISTICAL_MOMENTS_LOG_ABS_R_MINUS_R_BAR_RETURN,
         FREQUENCIES,
     )
-    logger.info("Step 4.9: Statistical Moments Completed.")
+    logger.info("Step 4.8: Statistical Moments Completed.")
