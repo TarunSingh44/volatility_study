@@ -43,6 +43,9 @@ FREQUENCIES = {
 STATISTICAL_MOMENTS = os.path.join(STATS_DIR, "statistical_moments")
 STATISTICAL_MOMENTS_ACTUAL = os.path.join(STATISTICAL_MOMENTS, "actual")
 STATISTICAL_MOMENTS_RETURN = os.path.join(STATISTICAL_MOMENTS, "return")
+STATISTICAL_MOMENTS_SQUARED_RETURN = os.path.join(STATISTICAL_MOMENTS, "squared_return")
+STATISTICAL_MOMENTS_ABSOLUTE_RETURN = os.path.join(STATISTICAL_MOMENTS, "absolute_return")
+STATISTICAL_MOMENTS_LOG_ABS_R_MINUS_R_BAR_RETURN = os.path.join(STATISTICAL_MOMENTS, "log_absolute_r_minus_r_bar_return")
 
 # Correlation 
 CORRELATION =  os.path.join(STATS_DIR, "correlation")
